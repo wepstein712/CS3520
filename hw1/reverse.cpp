@@ -13,11 +13,14 @@ main()
   } else {
     std::string line;
     string output = "";
+    string revLine = "";
     while (std::getline(inFile, line)) {
       for (int i = line.length() - 1; i >= 0; i--) {
-        output += line.at(i);
+        revLine += line.at(i);
       }
-      output += "\n";
+      revLine += "\n";
+      output = revLine + output;
+      revLine = "";
       //std::cout << line << std::endl;
     }
 
