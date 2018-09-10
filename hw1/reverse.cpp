@@ -9,7 +9,7 @@ main()
   inFile.open("input.txt");
  
   if (!inFile) {
-    std::cout << "File Error";
+    std::cerr << "File Error";
   } else {
     std::string line;
     string output = "";

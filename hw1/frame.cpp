@@ -12,7 +12,7 @@ main()
   ifstream i2;
 
   if (!inFile) {
-    std::cout << "File Error";
+    std::cerr << "File Error";
   } else {
     std::string line;
     string output = "";
