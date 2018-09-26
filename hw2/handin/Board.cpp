@@ -10,6 +10,12 @@ Board::Board()
 
 Board::~Board()
 {
+   //_board = nullptr;
+   for (int i = 0; i < _board.size(); i++) {
+    _board[i].resize(0);
+  } 
+  _board.resize(0);
+  //delete *(_board);
   
 }
 

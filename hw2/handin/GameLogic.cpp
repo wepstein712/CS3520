@@ -12,9 +12,10 @@ GameLogic::GameLogic()
 
 GameLogic::~GameLogic()
 {
+  //&_board.~board();
+  //delete  &_board;
   
 }
-
 void GameLogic::run()
 {
   _finished = false;
@@ -80,17 +81,20 @@ void GameLogic::display_board_and_input_next_move()
     _board.next_turn();
     break;
     case GameStatus::OVER_TIE: 
-    std::cout << "Congrats its a tie!" << endl;
+    std::cout << "Congrats its a tie!" << endl << "Here is the game board: ";
+    _board.print_board();
     std::cout << "Goodbye." << std::endl;
     _finished = true;
     break;
     case GameStatus::OVER_X_WON: 
-    std::cout << "Congrats player X" << endl;
+    std::cout << "Congrats player X" << endli << "Here is the game board: ";
+    _board.print_board();
     std::cout << "Goodbye." << std::endl;
     _finished = true;
     break;
     case GameStatus::OVER_O_WON: 
-    std::cout << "Congrats player O" << endl; 
+    std::cout << "Congrats player O" << endl << "Here is the game board: ";
+    _board.print_board(); 
     std::cout << "Goodbye." << std::endl;
     _finished = true;
     break;
@@ -99,13 +103,4 @@ void GameLogic::display_board_and_input_next_move()
     break;
       
   }
-      
-  
-    
-  }
-
-
-
-
- 
-
+}
