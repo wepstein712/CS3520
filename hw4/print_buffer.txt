@@ -1,0 +1,9 @@
+
+you need to delete the old buffer before making the new one, if you don't lose access to the unfreed memory forever.
+
+if you enter a line of text longer than the print buffer it does an invalid write, using a temporary string to hold the text and resizing the printbuffer as needed solves this problem.
+
+constructor did not create/instantiate the buffer or buffersize to anything. this is a problem but easily fixed.
+
+
+

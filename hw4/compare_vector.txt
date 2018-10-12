@@ -1,0 +1,11 @@
+Found that it is far faster to use brackets than use the at function (see copy pasted gprof information below). Using both of them on a vector (it is a very large vector) across multiple tests using at took far more time than using the brackets. I suspect it is because the at function is a function that puts things on the call stack and has to return information while the brackets are low level and don't require the same intensive process.
+
+
+
+
+  %   cumulative   self              self     total
+ time   seconds   seconds    calls   s/call   s/call  name
+ 17.49      0.83     0.34        1     0.34     1.27  at_access(std::vector<int, std::allocator<int> >&)
+  5.14      1.94     0.10        1     0.10     0.35  bracket_access(std::vector<int, std::allocator<int> >&)
+
+
