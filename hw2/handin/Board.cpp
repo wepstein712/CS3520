@@ -72,17 +72,23 @@ GameStatus Board::get_status() const
 }
 
 void Board::print_board() const { 
-  
+  cout  << endl;  
     for (int i = 0; i < _board.size(); i++) { 
         for (int j = 0; j < _board[i].size(); j++) { 
-            
-            switch ( _board[i][j]) {
-              case Space::X: std::cout << "|X|"; break;
-              case Space::O: std::cout << "|O|"; break;
-              case Space::BLANK: std::cout << "| |"; break;
+          if ( j != 0) { cout << "|"; } 
+            switch ( _board[j][i]) {
+              case Space::X: std::cout << "X"; break;
+              case Space::O: std::cout << "O"; break;
+              case Space::BLANK: std::cout << " "; break;
  
-}            
-}
+            }            
+       }
+      cout << endl;
+     if (i != _board.size() - 1) {
+	for (int l = 0; l < _board[i].size() + _board[i].size() - 1 ; l++) {
+	  cout << "-";
+ 	}
+	}
         std::cout << std::endl; 
     } 
 
