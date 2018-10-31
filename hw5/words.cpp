@@ -7,15 +7,12 @@
 Words *
 newListFromSize(unsigned int max_words)
 {
-  if (max_words > 0 ) {
-    for (int i = 0; i < num_words; i++) {
-      delete list[i];
-    }
-    delete list;
-    list = new char*[max_words];
-    this->max_words = max_words;
-    num_words = 0; 
-    return this;
+  if (max_words < 0) {
+  Words* w = new Words();
+  w->max_words = max_words;
+  w->num_words = 0;
+  w->list = new char*[max_words];
+  return w;
   } else {
     return nullptr;
   }
@@ -24,8 +21,9 @@ newListFromSize(unsigned int max_words)
 Words *
 newListFromString(const char *words)
 {
-
-if (words) {
+  if (words) {
+    Words *w = new Words();
+  
   char* temp = new char[strlen(words)];
   strcpy(temp, words);
   int count = 1;
@@ -36,24 +34,20 @@ if (words) {
       temp[i] = '\0';
     }
   }
-  
-  for (int i = 0; i < num_words; i++) {
-    delete list[i];
-  }
-  delete list;
-  list = new char*[count];
-  num_words = count;
-  max_words = count;
+ 
+  w->list = new char*[count];
+  w->num_words = count;
+  w->max_words = count;
   
 
   char* start = temp;
   for (int i = 0; i < count; i++) {
-    list[i] = new char [strlen(start)];
-    strcpy(list[i], start);
+    w->list[i] = new char [strlen(start)];
+    strcpy(w->list[i], start);
     start = start + strlen(start) + 1;
   }
   delete temp;
-  return this;
+  return w;
 
 } else {
   return nullptr;
