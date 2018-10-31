@@ -1,0 +1,4 @@
+1 new-string ab cd
+2 new-string ef gh ij
+1 print
+2 print

@@ -1,0 +1,11 @@
+1 new-size 3
+2 new-string a bc def ghij
+1 meta
+1 print
+2 meta
+2 print
+1 append-list
+1 meta
+1 print
+2 meta
+2 print

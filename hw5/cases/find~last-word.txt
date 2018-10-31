@@ -1,0 +1,2 @@
+1 new-string hello world
+1 find world
