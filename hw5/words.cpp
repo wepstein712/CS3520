@@ -3,19 +3,38 @@
 #include <iostream>
 
 
+using namespace std;
 
 Words *
 newListFromSize(unsigned int max_words)
 {
-  if (max_words < 0) {
+  if (max_words >  0) {
+    Words *w = new Words();
+    w->list = new char*[max_words];
+    w->num_words = 0;
+    w->max_words = max_words;
+    return w;
+
+  } else {
+     return nullptr;
+  }
+  
+
+  /*
+
+
+if (max_words < 0) {
   Words* w = new Words();
   w->max_words = max_words;
   w->num_words = 0;
-  w->list = new char*[max_words];
+  char** temp = new char*[max_words];
+  w->list = temp;
+  delete temp;
   return w;
   } else {
     return nullptr;
   }
+*/
 }
 
 Words *
@@ -24,7 +43,7 @@ newListFromString(const char *words)
   if (words) {
     Words *w = new Words();
   
-  char* temp = new char[strlen(words)];
+  char* temp = new char[strlen(words) + 1];
   strcpy(temp, words);
   int count = 1;
   int len = strlen(temp);
@@ -42,11 +61,11 @@ newListFromString(const char *words)
 
   char* start = temp;
   for (int i = 0; i < count; i++) {
-    w->list[i] = new char [strlen(start)];
+    w->list[i] = new char [strlen(start) + 1];
     strcpy(w->list[i], start);
     start = start + strlen(start) + 1;
   }
-  delete temp;
+  //  delete temp;
   return w;
 
 } else {
@@ -58,9 +77,11 @@ int
 deleteList(Words *p_w)
 {
   if (p_w) {
+    
     for (int i = 0; i < p_w->num_words; i++) {
       delete p_w->list[i];
     }
+
     delete p_w->list;
     delete &(p_w->max_words);
     delete &(p_w->num_words);
@@ -89,26 +110,32 @@ int
 appendListFromString(Words *p_w, const char *words)
 {
   if (p_w && strlen(words) > 0 ) {
-    char* temp = new char[strlen(words)];  
-    int word_count = 1;
-    for (int i = 0; i < strlen(temp); i++) {
-      if (words[i] == ' ') {
- 	word_count++;
-    	temp[i] = '\0';
-      } 
+
+    
+ char* temp = new char[strlen(words) + 1];
+  strcpy(temp, words);
+  int word_count;
+  word_count = 1;
+  int len = strlen(temp);
+  for (int i = 0; i < len; i++) {
+    if (temp[i] == ' ') {
+      word_count += 1;
+      temp[i] = '\0';
     }
+  }
+  
     if (p_w->num_words + word_count > p_w->max_words) {
 	char** nextList = new char*[p_w->num_words + word_count];
         for (int i = 0; i < p_w->num_words; i++) {
-	   nextList[i] = new char[strlen(p_w->list[i])];
+	   nextList[i] = new char[strlen(p_w->list[i]) + 1];
 	   strcpy(nextList[i],p_w->list[i]);
 	} 
         
         char* start = temp;
 	for (int i = 0; i < word_count; i++) {
-	  nextList[p_w->num_words + i] = new char [strlen(start)];
+	  nextList[p_w->num_words + i] = new char [strlen(start) + 1];
 	  strcpy(nextList[p_w->num_words + i], start);
-	  start += strlen(start);
+	  start += strlen(start) + 1;
 	}
 	for (int i = 0; i < p_w->num_words; i++) {
 	  delete p_w->list[i];
@@ -117,20 +144,19 @@ appendListFromString(Words *p_w, const char *words)
 	p_w->list = nextList;
 	p_w->num_words += word_count;
 	p_w->max_words = p_w->num_words;
-	delete nextList;
+delete nextList;
         
     } else {
   	char* start = temp;
       	for (int i = 0; i < word_count; i++) {
-	  p_w->list[p_w->num_words + i] = new char [ strlen(start)];
+	  p_w->list[p_w->num_words + i] = new char [strlen(start) + 1];
  	  strcpy(p_w->list[p_w->num_words + i], start);
 	  start += strlen(start);
 	}
  	p_w->num_words = p_w->num_words + word_count;
 
     }
-  strcpy(temp, words);
-  int count = 1;
+  
 
     delete temp;
     return word_count;
@@ -145,8 +171,8 @@ appendListFromList(Words *dst, const Words *src)
   if (dst || src) {
     if (src->num_words + dst->num_words <= dst->max_words) {
 	for (int i = 0; i < src->num_words; i++) {
-	  dst->list[dst->num_words + i] = new char[strlen(src->list[i])];
-	  strcpy(dst->list[dst->num_words + 1], src->list[i]);
+	  dst->list[dst->num_words + i] = new char[strlen(src->list[i]) + 1];
+	  strcpy(dst->list[dst->num_words + i], src->list[i]);
     	}
  	dst->num_words += src->num_words;
     } else {
@@ -154,17 +180,17 @@ appendListFromList(Words *dst, const Words *src)
       char** temp = new char*[count];
       for (int i = 0; i < count; i++) {
 	if (i < dst->num_words) {
-	  temp[i] = new char[strlen(dst->list[i])];
+	  temp[i] = new char[strlen(dst->list[i]) + 1];
 	  strcpy(temp[i], dst->list[i]);
 	} else {
-	  temp[i] = new char[strlen(src->list[i - dst->num_words])];
+	  temp[i] = new char[strlen(src->list[i - dst->num_words]) + 1];
 	  strcpy(temp[i], src->list[i - dst->num_words]);
 	}
       }
       for (int i = 0; i < dst->num_words; i++) {
 	delete dst->list[i];
       }
-      dst->list = temp;
+    dst->list = temp;
       delete temp;
       dst->num_words = count;
       dst->max_words = count;	
@@ -209,7 +235,7 @@ removeWord(Words *p_w, const char *word)
         if (strcmp(p_w->list[i], word) == 0) {
 	  continue;
         } else {
-	  temp[cur] = new char[strlen(p_w->list[i])];
+	  temp[cur] = new char[strlen(p_w->list[i]) + 1];
           strcpy(temp[cur], p_w->list[i]);
 	  cur++;
 	}
@@ -219,7 +245,8 @@ removeWord(Words *p_w, const char *word)
       }
       p_w->list = temp;
       delete temp;
-      p_w->num_words -= num_rem;    
+      p_w->num_words -= num_rem;
+      return num_rem;    
     }
   } else {
     return -1;
