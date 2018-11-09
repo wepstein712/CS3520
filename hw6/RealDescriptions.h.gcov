@@ -1,0 +1,248 @@
+        -:    0:Source:cxxtest-4.4/cxxtest/RealDescriptions.h
+        -:    0:Graph:runner.gcno
+        -:    0:Data:runner.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2:-------------------------------------------------------------------------
+        -:    3: CxxTest: A lightweight C++ unit testing library.
+        -:    4: Copyright (c) 2008 Sandia Corporation.
+        -:    5: This software is distributed under the LGPL License v3
+        -:    6: For more information, see the COPYING file in the top CxxTest directory.
+        -:    7: Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+        -:    8: the U.S. Government retains certain rights in this software.
+        -:    9:-------------------------------------------------------------------------
+        -:   10:*/
+        -:   11:
+        -:   12:#ifndef __cxxtest__RealDescriptions_h__
+        -:   13:#define __cxxtest__RealDescriptions_h__
+        -:   14:
+        -:   15://
+        -:   16:// The "real" description classes
+        -:   17://
+        -:   18:
+        -:   19:#include <cxxtest/Descriptions.h>
+        -:   20:#include <cxxtest/TestSuite.h>
+        -:   21:#include <cxxtest/GlobalFixture.h>
+        -:   22:
+        -:   23:namespace CxxTest
+        -:   24:{
+    #####:   25:class RealTestDescription : public TestDescription
+        -:   26:{
+        -:   27:public:
+        -:   28:    RealTestDescription();
+        -:   29:    RealTestDescription(List &argList, SuiteDescription &argSuite, unsigned argLine, const char *argTestName);
+        -:   30:    void initialize(List &argList, SuiteDescription &argSuite, unsigned argLine, const char *argTestName);
+        -:   31:
+        -:   32:    const char *file() const;
+        -:   33:    int line() const;
+        -:   34:    const char *testName() const;
+        -:   35:    const char *suiteName() const;
+        -:   36:
+        -:   37:    TestDescription *next();
+        -:   38:    const TestDescription *next() const;
+        -:   39:
+        -:   40:    TestSuite *suite() const;
+        -:   41:
+        -:   42:    bool setUp();
+        -:   43:    void run();
+        -:   44:    bool tearDown();
+        -:   45:
+        -:   46:private:
+        -:   47:    RealTestDescription(const RealTestDescription &);
+        -:   48:    RealTestDescription &operator=(const RealTestDescription &);
+        -:   49:
+        -:   50:    virtual void runTest() = 0;
+        -:   51:
+        -:   52:    SuiteDescription *_suite;
+        -:   53:    int _line;
+        -:   54:    const char *_testName;
+        -:   55:};
+        -:   56:
+    #####:   57:class RealSuiteDescription : public SuiteDescription
+        -:   58:{
+        -:   59:public:
+        -:   60:    RealSuiteDescription();
+        -:   61:    RealSuiteDescription(const char *argFile, unsigned argLine, const char *argSuiteName, List &argTests);
+        -:   62:
+        -:   63:    void initialize(const char *argFile, unsigned argLine, const char *argSuiteName, List &argTests);
+        -:   64:
+        -:   65:    const char *file() const;
+        -:   66:    int line() const;
+        -:   67:    const char *suiteName() const;
+        -:   68:
+        -:   69:    TestDescription *firstTest();
+        -:   70:    const TestDescription *firstTest() const;
+        -:   71:    SuiteDescription *next();
+        -:   72:    const SuiteDescription *next() const;
+        -:   73:
+        -:   74:    unsigned numTests() const;
+        -:   75:    const TestDescription &testDescription(unsigned i) const;
+        -:   76:
+        -:   77:    void activateAllTests();
+        -:   78:    bool leaveOnly(const char *testName);
+        -:   79:
+        -:   80:private:
+        -:   81:    RealSuiteDescription(const RealSuiteDescription &);
+        -:   82:    RealSuiteDescription &operator=(const RealSuiteDescription &);
+        -:   83:
+        -:   84:    const char *_file;
+        -:   85:    int _line;
+        -:   86:    const char *_suiteName;
+        -:   87:    List *_tests;
+        -:   88:
+        -:   89:    static List _suites;
+        -:   90:    friend class RealWorldDescription;
+        -:   91:};
+        -:   92:
+    #####:   93:class StaticSuiteDescription : public RealSuiteDescription
+        -:   94:{
+        -:   95:public:
+        -:   96:    StaticSuiteDescription();
+        -:   97:    StaticSuiteDescription(const char *argFile, unsigned argLine,
+        -:   98:                           const char *argSuiteName, TestSuite &argSuite,
+        -:   99:                           List &argTests);
+        -:  100:
+        -:  101:    void initialize(const char *argFile, unsigned argLine,
+        -:  102:                    const char *argSuiteName, TestSuite &argSuite,
+        -:  103:                    List &argTests);
+        -:  104:    TestSuite *suite() const;
+        -:  105:
+        -:  106:    bool setUp();
+        -:  107:    bool tearDown();
+        -:  108:
+        -:  109:private:
+        -:  110:    StaticSuiteDescription(const StaticSuiteDescription &);
+        -:  111:    StaticSuiteDescription &operator=(const StaticSuiteDescription &);
+        -:  112:
+        -:  113:    void doInitialize(TestSuite &argSuite);
+        -:  114:
+        -:  115:    TestSuite *_suite;
+        -:  116:};
+        -:  117:
+    #####:  118:class CommonDynamicSuiteDescription : public RealSuiteDescription
+        -:  119:{
+        -:  120:public:
+        -:  121:    CommonDynamicSuiteDescription();
+        -:  122:    CommonDynamicSuiteDescription(const char *argFile, unsigned argLine,
+        -:  123:                                  const char *argSuiteName, List &argTests,
+        -:  124:                                  unsigned argCreateLine, unsigned argDestroyLine);
+        -:  125:
+        -:  126:    void initialize(const char *argFile, unsigned argLine,
+        -:  127:                    const char *argSuiteName, List &argTests,
+        -:  128:                    unsigned argCreateLine, unsigned argDestroyLine);
+        -:  129:
+        -:  130:protected:
+        -:  131:    unsigned _createLine, _destroyLine;
+        -:  132:
+        -:  133:private:
+        -:  134:    void doInitialize(unsigned argCreateLine, unsigned argDestroyLine);
+        -:  135:};
+        -:  136:
+        -:  137:template<class S>
+        -:  138:class DynamicSuiteDescription : public CommonDynamicSuiteDescription
+        -:  139:{
+        -:  140:public:
+        -:  141:    DynamicSuiteDescription() {}
+        -:  142:    DynamicSuiteDescription(const char *argFile, unsigned argLine,
+        -:  143:                            const char *argSuiteName, List &argTests,
+        -:  144:                            S *&argSuite, unsigned argCreateLine,
+        -:  145:                            unsigned argDestroyLine) :
+        -:  146:        CommonDynamicSuiteDescription(argFile, argLine, argSuiteName, argTests, argCreateLine, argDestroyLine)
+        -:  147:    {
+        -:  148:        _suite = &argSuite;
+        -:  149:    }
+        -:  150:
+        -:  151:    void initialize(const char *argFile, unsigned argLine,
+        -:  152:                    const char *argSuiteName, List &argTests,
+        -:  153:                    S *&argSuite, unsigned argCreateLine,
+        -:  154:                    unsigned argDestroyLine)
+        -:  155:    {
+        -:  156:        CommonDynamicSuiteDescription::initialize(argFile, argLine,
+        -:  157:                argSuiteName, argTests,
+        -:  158:                argCreateLine, argDestroyLine);
+        -:  159:        _suite = &argSuite;
+        -:  160:    }
+        -:  161:
+        -:  162:    TestSuite *suite() const { return realSuite(); }
+        -:  163:
+        -:  164:    bool setUp();
+        -:  165:    bool tearDown();
+        -:  166:
+        -:  167:private:
+        -:  168:    S *realSuite() const { return *_suite; }
+        -:  169:    void setSuite(S *s) { *_suite = s; }
+        -:  170:
+        -:  171:    void createSuite()
+        -:  172:    {
+        -:  173:        setSuite(S::createSuite());
+        -:  174:    }
+        -:  175:
+        -:  176:    void destroySuite()
+        -:  177:    {
+        -:  178:        S *s = realSuite();
+        -:  179:        setSuite(0);
+        -:  180:        S::destroySuite(s);
+        -:  181:    }
+        -:  182:
+        -:  183:    S **_suite;
+        -:  184:};
+        -:  185:
+        -:  186:template<class S>
+        -:  187:bool DynamicSuiteDescription<S>::setUp()
+        -:  188:{
+        -:  189:    _TS_TRY
+        -:  190:    {
+        -:  191:        _TSM_ASSERT_THROWS_NOTHING(file(), _createLine, "Exception thrown from createSuite()", createSuite());
+        -:  192:        _TSM_ASSERT(file(), _createLine, "createSuite() failed", suite() != 0);
+        -:  193:    }
+        -:  194:    _TS_CATCH_ABORT( { return false; })
+        -:  195:    _TS_CATCH_SKIPPED( { return false; });
+        -:  196:
+        -:  197:    return (suite() != 0);
+        -:  198:}
+        -:  199:
+        -:  200:template<class S>
+        -:  201:bool DynamicSuiteDescription<S>::tearDown()
+        -:  202:{
+        -:  203:    if (!_suite)
+        -:  204:    {
+        -:  205:        return true;
+        -:  206:    }
+        -:  207:
+        -:  208:    _TS_TRY
+        -:  209:    {
+        -:  210:        _TSM_ASSERT_THROWS_NOTHING(file(), _destroyLine, "destroySuite() failed", destroySuite());
+        -:  211:    }
+        -:  212:    _TS_CATCH_ABORT( { return false; })
+        -:  213:    _TS_CATCH_SKIPPED( { return false; });
+        -:  214:
+        -:  215:    return true;
+        -:  216:}
+        -:  217:
+        2:  218:class RealWorldDescription : public WorldDescription
+        -:  219:{
+        -:  220:public:
+        -:  221:    static List &suites();
+        1:  222:    const char *worldName() const { return _worldName;}
+        -:  223:    unsigned numSuites(void) const;
+        -:  224:    unsigned numTotalTests(void) const;
+        -:  225:    SuiteDescription *firstSuite();
+        -:  226:    const SuiteDescription *firstSuite() const;
+        -:  227:    const SuiteDescription &suiteDescription(unsigned i) const;
+        -:  228:    void activateAllTests();
+        -:  229:    bool leaveOnly(const char *suiteName, const char *testName = 0);
+        -:  230:
+        -:  231:    bool setUp();
+        -:  232:    bool tearDown();
+        -:  233:    static void reportError(const char *message);
+        -:  234:
+        -:  235:    static const char *_worldName;
+        -:  236:};
+        -:  237:
+        -:  238:void activateAllTests();
+        -:  239:bool leaveOnly(const char *suiteName, const char *testName = 0);
+        -:  240:}
+        -:  241:
+        -:  242:#endif // __cxxtest__RealDescriptions_h__
+        -:  243:

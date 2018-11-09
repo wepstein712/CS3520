@@ -1,0 +1,138 @@
+        -:    0:Source:cxxtest-4.4/cxxtest/TestMain.h
+        -:    0:Graph:runner.gcno
+        -:    0:Data:runner.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2:-------------------------------------------------------------------------
+        -:    3: CxxTest: A lightweight C++ unit testing library.
+        -:    4: Copyright (c) 2008 Sandia Corporation.
+        -:    5: This software is distributed under the LGPL License v3
+        -:    6: For more information, see the COPYING file in the top CxxTest directory.
+        -:    7: Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+        -:    8: the U.S. Government retains certain rights in this software.
+        -:    9:-------------------------------------------------------------------------
+        -:   10:*/
+        -:   11:
+        -:   12:#ifndef __CxxTestMain_h
+        -:   13:#define __CxxTestMain_h
+        -:   14:
+        -:   15:#include <cxxtest/TestTracker.h>
+        -:   16:#include <cxxtest/Flags.h>
+        -:   17:
+        -:   18:#ifndef _CXXTEST_HAVE_STD
+        -:   19:#   define _CXXTEST_HAVE_STD
+        -:   20:#endif // _CXXTEST_HAVE_STD
+        -:   21:
+        -:   22:#include <cxxtest/StdValueTraits.h>
+        -:   23:
+        -:   24:#if defined(_CXXTEST_HAVE_STD)
+        -:   25:#ifdef _CXXTEST_OLD_STD
+        -:   26:#   include <iostream.h>
+        -:   27:#   include <string.h>
+        -:   28:#else // !_CXXTEST_OLD_STD
+        -:   29:#   include <iostream>
+        -:   30:#   include <cstring>
+        -:   31:#endif // _CXXTEST_OLD_STD
+        -:   32:
+        -:   33:namespace CxxTest
+        -:   34:{
+        -:   35:
+    #####:   36:inline void print_help(const char* name)
+        -:   37:{
+    #####:   38:    CXXTEST_STD(cerr) << name << " <suitename>" << CXXTEST_STD(endl);
+    #####:   39:    CXXTEST_STD(cerr) << name << " <suitename> <testname>" << CXXTEST_STD(endl);
+    #####:   40:    CXXTEST_STD(cerr) << name << " -h" << CXXTEST_STD(endl);
+    #####:   41:    CXXTEST_STD(cerr) << name << " --help" << CXXTEST_STD(endl);
+    #####:   42:    CXXTEST_STD(cerr) << name << " --help-tests" << CXXTEST_STD(endl);
+    #####:   43:    CXXTEST_STD(cerr) << name << " -v             Enable tracing output." << CXXTEST_STD(endl);
+    #####:   44:}
+        -:   45:#endif
+        -:   46:
+        -:   47:
+        -:   48:template <class TesterT>
+        1:   49:int Main(TesterT& tmp, int argc, char* argv[])
+        -:   50:{
+        -:   51://
+        -:   52:// Parse the command-line arguments. The default behavior is to run all tests
+        -:   53://
+        -:   54:// This is a primitive parser, but I'm not sure what sort of portable
+        -:   55:// parser should be used in cxxtest.
+        -:   56://
+        -:   57:
+        -:   58:#if defined(_CXXTEST_HAVE_STD)
+        -:   59://
+        -:   60:// Print command-line syntax
+        -:   61://
+        1:   62:    for (int i = 1; i < argc; i++)
+        -:   63:    {
+    #####:   64:        if ((CXXTEST_STD(strcmp)(argv[i], "-h") == 0) || (CXXTEST_STD(strcmp)(argv[i], "--help") == 0))
+        -:   65:        {
+    #####:   66:            print_help(argv[0]);
+    #####:   67:            return 0;
+        -:   68:        }
+    #####:   69:        else if ((CXXTEST_STD(strcmp)(argv[1], "--help-tests") == 0))
+        -:   70:        {
+    #####:   71:            CXXTEST_STD(cout) << "Suite/Test Names" << CXXTEST_STD(endl);
+    #####:   72:            CXXTEST_STD(cout) << "---------------------------------------------------------------------------" << CXXTEST_STD(endl);
+    #####:   73:            for (SuiteDescription *sd = RealWorldDescription().firstSuite(); sd; sd = sd->next())
+    #####:   74:                for (TestDescription *td = sd->firstTest(); td; td = td->next())
+        -:   75:                {
+    #####:   76:                    CXXTEST_STD(cout) << td->suiteName() << " " << td->testName() << CXXTEST_STD(endl);
+        -:   77:                }
+    #####:   78:            return 0;
+        -:   79:        }
+        -:   80:    }
+        -:   81:
+        -:   82://
+        -:   83:// Process command-line options here.
+        -:   84://
+        2:   85:    while ((argc > 1) && (argv[1][0] == '-'))
+        -:   86:    {
+    #####:   87:        if (CXXTEST_STD(strcmp)(argv[1], "-v") == 0)
+        -:   88:        {
+    #####:   89:            tracker().print_tracing = true;
+        -:   90:        }
+        -:   91:        else
+        -:   92:        {
+    #####:   93:            CXXTEST_STD(cerr) << "ERROR: unknown option '" << argv[1] << "'" << CXXTEST_STD(endl);
+    #####:   94:            return -1;
+        -:   95:        }
+    #####:   96:        for (int i = 1; i < (argc - 1); i++)
+        -:   97:        {
+    #####:   98:            argv[i] = argv[i + 1];
+        -:   99:        }
+    #####:  100:        argc--;
+        -:  101:    }
+        -:  102:
+        -:  103://
+        -:  104:// Run experiments
+        -:  105://
+        1:  106:    bool status = false;
+        1:  107:    if ((argc == 2) && (argv[1][0] != '-'))
+        -:  108:    {
+    #####:  109:        status = leaveOnly(argv[1]);
+    #####:  110:        if (!status)
+        -:  111:        {
+    #####:  112:            CXXTEST_STD(cerr) << "ERROR: unknown suite '" << argv[1] << "'" << CXXTEST_STD(endl);
+    #####:  113:            return -1;
+        -:  114:        }
+        -:  115:    }
+        1:  116:    if ((argc == 3) && (argv[1][0] != '-'))
+        -:  117:    {
+    #####:  118:        status = leaveOnly(argv[1], argv[2]);
+    #####:  119:        if (!status)
+        -:  120:        {
+    #####:  121:            CXXTEST_STD(cerr) << "ERROR: unknown test '" << argv[1] << "::" << argv[2] << "'" << CXXTEST_STD(endl);
+    #####:  122:            return -1;
+        -:  123:        }
+        -:  124:    }
+        -:  125:#endif
+        -:  126:
+        1:  127:    tmp.process_commandline(argc, argv);
+        1:  128:    return tmp.run();
+        -:  129:}
+        -:  130:
+        -:  131:}
+        -:  132:#endif
+        -:  133:

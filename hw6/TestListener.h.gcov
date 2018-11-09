@@ -1,0 +1,92 @@
+        -:    0:Source:cxxtest-4.4/cxxtest/TestListener.h
+        -:    0:Graph:runner.gcno
+        -:    0:Data:runner.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2:-------------------------------------------------------------------------
+        -:    3: CxxTest: A lightweight C++ unit testing library.
+        -:    4: Copyright (c) 2008 Sandia Corporation.
+        -:    5: This software is distributed under the LGPL License v3
+        -:    6: For more information, see the COPYING file in the top CxxTest directory.
+        -:    7: Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+        -:    8: the U.S. Government retains certain rights in this software.
+        -:    9:-------------------------------------------------------------------------
+        -:   10:*/
+        -:   11:
+        -:   12:#ifndef __cxxtest__TestListener_h__
+        -:   13:#define __cxxtest__TestListener_h__
+        -:   14:
+        -:   15://
+        -:   16:// TestListener is the base class for all "listeners",
+        -:   17:// i.e. classes that receive notifications of the
+        -:   18:// testing process.
+        -:   19://
+        -:   20:// The names of the parameters are in comments to avoid
+        -:   21:// "unused parameter" warnings.
+        -:   22://
+        -:   23:
+        -:   24:#include <cxxtest/Descriptions.h>
+        -:   25:
+        -:   26:namespace CxxTest
+        -:   27:{
+        -:   28:class TestListener
+        -:   29:{
+        -:   30:public:
+        3:   31:    TestListener() {}
+        3:   32:    virtual ~TestListener() {}
+        1:   33:    virtual void process_commandline(int& /*argc*/, char** /*argv*/) {}
+        -:   34:
+    #####:   35:    virtual void enterWorld(const WorldDescription & /*desc*/) {}
+    #####:   36:    virtual void enterSuite(const SuiteDescription & /*desc*/) {}
+    #####:   37:    virtual void enterTest(const TestDescription & /*desc*/) {}
+    #####:   38:    virtual void trace(const char * /*file*/, int /*line*/,
+    #####:   39:                       const char * /*expression*/) {}
+    #####:   40:    virtual void warning(const char * /*file*/, int /*line*/,
+    #####:   41:                         const char * /*expression*/) {}
+    #####:   42:    virtual void skippedTest(const char * /*file*/, int /*line*/,
+    #####:   43:                             const char * /*expression*/) {}
+    #####:   44:    virtual void failedTest(const char * /*file*/, int /*line*/,
+    #####:   45:                            const char * /*expression*/) {}
+    #####:   46:    virtual void failedAssert(const char * /*file*/, int /*line*/,
+    #####:   47:                              const char * /*expression*/) {}
+    #####:   48:    virtual void failedAssertEquals(const char * /*file*/, int /*line*/,
+        -:   49:                                    const char * /*xStr*/, const char * /*yStr*/,
+    #####:   50:                                    const char * /*x*/, const char * /*y*/) {}
+    #####:   51:    virtual void failedAssertSameData(const char * /*file*/, int /*line*/,
+        -:   52:                                      const char * /*xStr*/, const char * /*yStr*/,
+        -:   53:                                      const char * /*sizeStr*/, const void * /*x*/,
+    #####:   54:                                      const void * /*y*/, unsigned /*size*/) {}
+    #####:   55:    virtual void failedAssertDelta(const char * /*file*/, int /*line*/,
+        -:   56:                                   const char * /*xStr*/, const char * /*yStr*/,
+        -:   57:                                   const char * /*dStr*/, const char * /*x*/,
+    #####:   58:                                   const char * /*y*/, const char * /*d*/) {}
+    #####:   59:    virtual void failedAssertDiffers(const char * /*file*/, int /*line*/,
+        -:   60:                                     const char * /*xStr*/, const char * /*yStr*/,
+    #####:   61:                                     const char * /*value*/) {}
+    #####:   62:    virtual void failedAssertLessThan(const char * /*file*/, int /*line*/,
+        -:   63:                                      const char * /*xStr*/, const char * /*yStr*/,
+    #####:   64:                                      const char * /*x*/, const char * /*y*/) {}
+    #####:   65:    virtual void failedAssertLessThanEquals(const char * /*file*/, int /*line*/,
+        -:   66:                                            const char * /*xStr*/, const char * /*yStr*/,
+    #####:   67:                                            const char * /*x*/, const char * /*y*/) {}
+    #####:   68:    virtual void failedAssertPredicate(const char * /*file*/, int /*line*/,
+    #####:   69:                                       const char * /*predicate*/, const char * /*xStr*/, const char * /*x*/) {}
+    #####:   70:    virtual void failedAssertRelation(const char * /*file*/, int /*line*/,
+        -:   71:                                      const char * /*relation*/, const char * /*xStr*/, const char * /*yStr*/,
+    #####:   72:                                      const char * /*x*/, const char * /*y*/) {}
+    #####:   73:    virtual void failedAssertThrows(const char * /*file*/, int /*line*/,
+        -:   74:                                    const char * /*expression*/, const char * /*type*/,
+    #####:   75:                                    bool /*otherThrown*/) {}
+    #####:   76:    virtual void failedAssertThrowsNot(const char * /*file*/, int /*line*/,
+    #####:   77:                                       const char * /*expression*/) {}
+    #####:   78:    virtual void failedAssertSameFiles(const char* /*file*/, int /*line*/,
+    #####:   79:                                       const char* , const char*, const char*) {}
+    #####:   80:    virtual void leaveTest(const TestDescription & /*desc*/) {}
+        2:   81:    virtual void leaveSuite(const SuiteDescription & /*desc*/) {}
+    #####:   82:    virtual void leaveWorld(const WorldDescription & /*desc*/) {}
+        -:   83:};
+        -:   84:}
+        -:   85:
+        -:   86:#endif // __cxxtest__TestListener_h__
+        -:   87:

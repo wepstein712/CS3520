@@ -62,12 +62,23 @@ public:
 
   }
  
-  void testMoveConstructor(void) {
+  void testMove(void) {
     init();
-  //  IntArray* test(e);
-  //  TS_ASSERT_EQUALS(*test,*e);
-  //  delete & test;
-  }
+    IntArray a1, a2;
+    a1 = *( new IntArray{1, 2});
+    a2 = std::move(a1); 
+  /* IntArray alpha = *e;
+    IntArray test; // = alpha;
+    test = std::move(alpha);
+    test = IntArray();
+   TS_ASSERT_EQUALS(test.size(), alpha.size());
+    alpha = *a;
+    test = std::move(alpha);
+    TS_ASSERT_DIFFERS(test, alpha);
+    test = std::move(test);
+    TS_ASSERT_EQUALS(test, alpha); 
+*/ 
+ }
 
   void testDelete(void) {
     init();

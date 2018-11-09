@@ -8,28 +8,28 @@
         -:    3:#include <stdexcept>
         -:    4:#include <utility>
         -:    5:
-        2:    6:IntArray::IntArray():
-        2:    7:  IntArray(0)
+        4:    6:IntArray::IntArray():
+        4:    7:  IntArray(0)
         -:    8:{
-        2:    9:}
+        4:    9:}
         -:   10:
-       24:   11:IntArray::IntArray(size_t sz):
-       24:   12:  m_arr(new int[sz]),
-       24:   13:  m_sz(sz)
+       26:   11:IntArray::IntArray(size_t sz):
+       26:   12:  m_arr(new int[sz]),
+       26:   13:  m_sz(sz)
         -:   14:{
-       24:   15:  memset(m_arr, 0, sizeof(int) * m_sz);
-       24:   16:}
+       26:   15:  memset(m_arr, 0, sizeof(int) * m_sz);
+       26:   16:}
         -:   17:
-       77:   18:IntArray::IntArray(const std::initializer_list<int> & lst):
-       77:   19:  m_arr(new int[lst.size()]),
-       77:   20:  m_sz(lst.size())
+       78:   18:IntArray::IntArray(const std::initializer_list<int> & lst):
+       78:   19:  m_arr(new int[lst.size()]),
+       78:   20:  m_sz(lst.size())
         -:   21:{
-       77:   22:  size_t ii = 0;
-      442:   23:  for (int elem: lst) {
-      365:   24:    m_arr[ii] = elem;
-      365:   25:    ++ ii;
+       78:   22:  size_t ii = 0;
+      445:   23:  for (int elem: lst) {
+      367:   24:    m_arr[ii] = elem;
+      367:   25:    ++ ii;
         -:   26:  }
-       77:   27:}
+       78:   27:}
         -:   28:
        19:   29:IntArray::IntArray(const IntArray & o):
        19:   30:  m_arr(new int[o.m_sz]),
@@ -46,9 +46,9 @@
     #####:   41:  o.m_sz = 0;
     #####:   42:}
         -:   43:
-       36:   44:IntArray::~IntArray() {
-       36:   45:  delete [] m_arr;
-       36:   46:}
+       38:   44:IntArray::~IntArray() {
+       38:   45:  delete [] m_arr;
+       38:   46:}
         -:   47:
         6:   48:const int *IntArray::ptr() const {
         6:   49:  return m_arr;
@@ -58,27 +58,27 @@
        17:   53:  return m_sz;
         -:   54:}
         -:   55:
-        6:   56:IntArray & IntArray::operator=(const IntArray & o) {
-        6:   57:  if (this != &o) {
-        6:   58:    if (m_sz != o.m_sz) {
-        4:   59:      delete [] m_arr;
-        4:   60:      m_arr = new int[o.m_sz];
-        4:   61:      m_sz = o.m_sz;
+        7:   56:IntArray & IntArray::operator=(const IntArray & o) {
+        7:   57:  if (this != &o) {
+        7:   58:    if (m_sz != o.m_sz) {
+        5:   59:      delete [] m_arr;
+        5:   60:      m_arr = new int[o.m_sz];
+        5:   61:      m_sz = o.m_sz;
         -:   62:    }
-        6:   63:    memcpy(m_arr, o.m_arr, sizeof(int) * m_sz);
+        7:   63:    memcpy(m_arr, o.m_arr, sizeof(int) * m_sz);
         -:   64:  }
-        6:   65:  return *this;
+        7:   65:  return *this;
         -:   66:}
         -:   67:
-        3:   68:IntArray & IntArray::operator=(IntArray && o) {
-        3:   69:  if (this != &o) {
-        3:   70:    delete [] m_arr;
-        3:   71:    m_arr = o.m_arr;
-        3:   72:    m_sz = o.m_sz;
-        3:   73:    o.m_arr = nullptr;
-        3:   74:    o.m_sz = 0;
+        4:   68:IntArray & IntArray::operator=(IntArray && o) {
+        4:   69:  if (this != &o) {
+        4:   70:    delete [] m_arr;
+        4:   71:    m_arr = o.m_arr;
+        4:   72:    m_sz = o.m_sz;
+        4:   73:    o.m_arr = nullptr;
+        4:   74:    o.m_sz = 0;
         -:   75:  }
-        3:   76:  return *this;
+        4:   76:  return *this;
         -:   77:}
         -:   78:
        16:   79:int & IntArray::operator[](size_t ind) {

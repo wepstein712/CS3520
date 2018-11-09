@@ -1,0 +1,352 @@
+        -:    0:Source:cxxtest-4.4/cxxtest/ErrorFormatter.h
+        -:    0:Graph:runner.gcno
+        -:    0:Data:runner.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2:-------------------------------------------------------------------------
+        -:    3: CxxTest: A lightweight C++ unit testing library.
+        -:    4: Copyright (c) 2008 Sandia Corporation.
+        -:    5: This software is distributed under the LGPL License v3
+        -:    6: For more information, see the COPYING file in the top CxxTest directory.
+        -:    7: Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+        -:    8: the U.S. Government retains certain rights in this software.
+        -:    9:-------------------------------------------------------------------------
+        -:   10:*/
+        -:   11:
+        -:   12:#ifndef __cxxtest__ErrorFormatter_h__
+        -:   13:#define __cxxtest__ErrorFormatter_h__
+        -:   14:
+        -:   15://
+        -:   16:// The ErrorFormatter is a TestListener that
+        -:   17:// prints reports of the errors to an output
+        -:   18:// stream.  Since we cannot rely on the standard
+        -:   19:// iostreams, this header defines a base class
+        -:   20:// analogout to std::ostream.
+        -:   21://
+        -:   22:
+        -:   23:#include <cxxtest/TestRunner.h>
+        -:   24:#include <cxxtest/TestListener.h>
+        -:   25:#include <cxxtest/TestTracker.h>
+        -:   26:#include <cxxtest/ValueTraits.h>
+        -:   27:#include <cstdio>
+        -:   28:
+        -:   29:namespace CxxTest
+        -:   30:{
+        1:   31:class OutputStream
+        -:   32:{
+        -:   33:public:
+        1:   34:    virtual ~OutputStream() {}
+    #####:   35:    virtual void flush() {};
+    #####:   36:    virtual OutputStream &operator<<(unsigned /*number*/) { return *this; }
+    #####:   37:    virtual OutputStream &operator<<(const char * /*string*/) { return *this; }
+        -:   38:
+        -:   39:    typedef void (*Manipulator)(OutputStream &);
+        -:   40:
+        2:   41:    virtual OutputStream &operator<<(Manipulator m) { m(*this); return *this; }
+        1:   42:    static void endl(OutputStream &o) { (o << "\n").flush(); }
+        -:   43:};
+        -:   44:
+        1:   45:class ErrorFormatter : public TestListener
+        -:   46:{
+        -:   47:public:
+        1:   48:    ErrorFormatter(OutputStream *o, const char *preLine = ":", const char *postLine = "",
+        -:   49:                   const char *errorString = "Error",
+        -:   50:                   const char *warningString = "Warning") :
+        -:   51:        _dotting(true),
+        -:   52:        _reported(false),
+        -:   53:        _o(o),
+        -:   54:        _preLine(preLine),
+        -:   55:        _postLine(postLine),
+        -:   56:        _errorString(errorString),
+        1:   57:        _warningString(warningString)
+        -:   58:    {
+        1:   59:    }
+        -:   60:
+        1:   61:    int run()
+        -:   62:    {
+        1:   63:        TestRunner::runAllTests(*this);
+        1:   64:        return tracker().failedTests();
+        -:   65:    }
+        -:   66:
+        1:   67:    void enterWorld(const WorldDescription& desc)
+        -:   68:    {
+        1:   69:        (*_o) << "Running " << desc.worldName() << " tests (" << totalTests << ")";
+        1:   70:        _o->flush();
+        1:   71:        _dotting = true;
+        1:   72:        _reported = false;
+        1:   73:    }
+        -:   74:
+        1:   75:    static void totalTests(OutputStream &o)
+        -:   76:    {
+        -:   77:        char s[WorldDescription::MAX_STRLEN_TOTAL_TESTS];
+        1:   78:        const WorldDescription &wd = tracker().world();
+        1:   79:        o << wd.strTotalTests(s) << (wd.numTotalTests() == 1 ? " test" : " tests");
+        1:   80:    }
+        -:   81:
+        2:   82:    void enterSuite(const SuiteDescription &)
+        -:   83:    {
+        2:   84:        _reported = false;
+        2:   85:    }
+        -:   86:
+       19:   87:    void enterTest(const TestDescription &)
+        -:   88:    {
+       19:   89:        _reported = false;
+       19:   90:    }
+        -:   91:
+       19:   92:    void leaveTest(const TestDescription &)
+        -:   93:    {
+       19:   94:        if (tracker().testSkipped())
+        -:   95:        {
+    #####:   96:            (*_o) << "s";
+    #####:   97:            _o->flush();
+    #####:   98:            fflush(stdout);
+    #####:   99:            _dotting = true;
+        -:  100:        }
+       19:  101:        else if (!tracker().testFailed())
+        -:  102:        {
+       19:  103:            (*_o) << ".";
+       19:  104:            _o->flush();
+       19:  105:            fflush(stdout);
+       19:  106:            _dotting = true;
+        -:  107:        }
+       19:  108:    }
+        -:  109:
+        1:  110:    void leaveWorld(const WorldDescription &desc)
+        -:  111:    {
+        1:  112:        if (!tracker().failedTests())
+        -:  113:        {
+        1:  114:            (*_o) << "OK!" << endl;
+        2:  115:            return;
+        -:  116:        }
+    #####:  117:        newLine();
+    #####:  118:        (*_o) << "Failed " << tracker().failedTests() << " and Skipped " << tracker().skippedTests() << " of " << totalTests << endl;
+    #####:  119:        unsigned numPassed = desc.numTotalTests() - tracker().failedTests() - tracker().skippedTests();
+    #####:  120:        unsigned numTotal = desc.numTotalTests() - tracker().skippedTests();
+    #####:  121:        if (numTotal == 0)
+        -:  122:        {
+    #####:  123:            (*_o) << "Success rate: 100%" << endl;
+        -:  124:        }
+        -:  125:        else
+        -:  126:        {
+    #####:  127:            (*_o) << "Success rate: " << (unsigned)(numPassed * 100.0 / numTotal) << "%" << endl;
+        -:  128:        }
+        -:  129:    }
+        -:  130:
+    #####:  131:    void trace(const char *file, int line, const char *expression)
+        -:  132:    {
+    #####:  133:        stop(file, line) << "Trace: " <<
+    #####:  134:                         expression << endl;
+    #####:  135:    }
+        -:  136:
+    #####:  137:    void warning(const char *file, int line, const char *expression)
+        -:  138:    {
+    #####:  139:        stop(file, line) << _warningString << ": " <<
+    #####:  140:                         expression << endl;
+    #####:  141:    }
+        -:  142:
+    #####:  143:    void skippedTest(const char *file, int line, const char *expression)
+        -:  144:    {
+    #####:  145:        if(expression && strlen(expression) > 0)
+    #####:  146:            stop(file, line) << _warningString << ": Test skipped: " <<
+    #####:  147:                             expression << endl;
+    #####:  148:    }
+        -:  149:
+    #####:  150:    void failedTest(const char *file, int line, const char *expression)
+        -:  151:    {
+    #####:  152:        stop(file, line) << _errorString << ": Test failed: " <<
+    #####:  153:                         expression << endl;
+    #####:  154:    }
+        -:  155:
+    #####:  156:    void failedAssert(const char *file, int line, const char *expression)
+        -:  157:    {
+    #####:  158:        stop(file, line) << _errorString << ": Assertion failed: " <<
+    #####:  159:                         expression << endl;
+    #####:  160:    }
+        -:  161:
+    #####:  162:    void failedAssertEquals(const char *file, int line,
+        -:  163:                            const char *xStr, const char *yStr,
+        -:  164:                            const char *x, const char *y)
+        -:  165:    {
+    #####:  166:        stop(file, line) << _errorString << ": Expected (" <<
+    #####:  167:                         xStr << " == " << yStr << "), found (" <<
+    #####:  168:                         x << " != " << y << ")" << endl;
+    #####:  169:    }
+        -:  170:
+    #####:  171:    void failedAssertSameData(const char *file, int line,
+        -:  172:                              const char *xStr, const char *yStr,
+        -:  173:                              const char *sizeStr, const void *x,
+        -:  174:                              const void *y, unsigned size)
+        -:  175:    {
+    #####:  176:        stop(file, line) << _errorString << ": Expected " << sizeStr << " (" << size << ") bytes to be equal at (" <<
+    #####:  177:                         xStr << ") and (" << yStr << "), found:" << endl;
+    #####:  178:        dump(x, size);
+    #####:  179:        (*_o) << "     differs from" << endl;
+    #####:  180:        dump(y, size);
+    #####:  181:    }
+        -:  182:
+    #####:  183:    void failedAssertSameFiles(const char* file, int line,
+        -:  184:                               const char*, const char*,
+        -:  185:                               const char* explanation
+        -:  186:                              )
+        -:  187:    {
+    #####:  188:        stop(file, line) << _errorString << ": " << explanation << endl;
+    #####:  189:    }
+        -:  190:
+    #####:  191:    void failedAssertDelta(const char *file, int line,
+        -:  192:                           const char *xStr, const char *yStr, const char *dStr,
+        -:  193:                           const char *x, const char *y, const char *d)
+        -:  194:    {
+    #####:  195:        stop(file, line) << _errorString << ": Expected (" <<
+    #####:  196:                         xStr << " == " << yStr << ") up to " << dStr << " (" << d << "), found (" <<
+    #####:  197:                         x << " != " << y << ")" << endl;
+    #####:  198:    }
+        -:  199:
+    #####:  200:    void failedAssertDiffers(const char *file, int line,
+        -:  201:                             const char *xStr, const char *yStr,
+        -:  202:                             const char *value)
+        -:  203:    {
+    #####:  204:        stop(file, line) << _errorString << ": Expected (" <<
+    #####:  205:                         xStr << " != " << yStr << "), found (" <<
+    #####:  206:                         value << ")" << endl;
+    #####:  207:    }
+        -:  208:
+    #####:  209:    void failedAssertLessThan(const char *file, int line,
+        -:  210:                              const char *xStr, const char *yStr,
+        -:  211:                              const char *x, const char *y)
+        -:  212:    {
+    #####:  213:        stop(file, line) << _errorString << ": Expected (" <<
+    #####:  214:                         xStr << " < " << yStr << "), found (" <<
+    #####:  215:                         x << " >= " << y << ")" << endl;
+    #####:  216:    }
+        -:  217:
+    #####:  218:    void failedAssertLessThanEquals(const char *file, int line,
+        -:  219:                                    const char *xStr, const char *yStr,
+        -:  220:                                    const char *x, const char *y)
+        -:  221:    {
+    #####:  222:        stop(file, line) << _errorString << ": Expected (" <<
+    #####:  223:                         xStr << " <= " << yStr << "), found (" <<
+    #####:  224:                         x << " > " << y << ")" << endl;
+    #####:  225:    }
+        -:  226:
+    #####:  227:    void failedAssertRelation(const char *file, int line,
+        -:  228:                              const char *relation, const char *xStr, const char *yStr,
+        -:  229:                              const char *x, const char *y)
+        -:  230:    {
+    #####:  231:        stop(file, line) << _errorString << ": Expected " << relation << "( " <<
+    #####:  232:                         xStr << ", " << yStr << " ), found !" << relation << "( " << x << ", " << y << " )" << endl;
+    #####:  233:    }
+        -:  234:
+    #####:  235:    void failedAssertPredicate(const char *file, int line,
+        -:  236:                               const char *predicate, const char *xStr, const char *x)
+        -:  237:    {
+    #####:  238:        stop(file, line) << _errorString << ": Expected " << predicate << "( " <<
+    #####:  239:                         xStr << " ), found !" << predicate << "( " << x << " )" << endl;
+    #####:  240:    }
+        -:  241:
+    #####:  242:    void failedAssertThrows(const char *file, int line,
+        -:  243:                            const char *expression, const char *type,
+        -:  244:                            bool otherThrown)
+        -:  245:    {
+    #####:  246:        stop(file, line) << _errorString << ": Expected (" << expression << ") to throw (" <<
+    #####:  247:                         type << ") but it " << (otherThrown ? "threw something else" : "didn't throw") <<
+    #####:  248:                         endl;
+    #####:  249:    }
+        -:  250:
+    #####:  251:    void failedAssertThrowsNot(const char *file, int line, const char *expression)
+        -:  252:    {
+    #####:  253:        stop(file, line) << _errorString << ": Expected (" << expression << ") not to throw, but it did" <<
+    #####:  254:                         endl;
+    #####:  255:    }
+        -:  256:
+        -:  257:protected:
+        1:  258:    OutputStream *outputStream() const
+        -:  259:    {
+        1:  260:        return _o;
+        -:  261:    }
+        -:  262:
+        -:  263:private:
+        -:  264:    ErrorFormatter(const ErrorFormatter &);
+        -:  265:    ErrorFormatter &operator=(const ErrorFormatter &);
+        -:  266:
+    #####:  267:    OutputStream &stop(const char *file, int line)
+        -:  268:    {
+    #####:  269:        newLine();
+    #####:  270:        reportTest();
+    #####:  271:        return (*_o) << file << _preLine << line << _postLine << ": ";
+        -:  272:    }
+        -:  273:
+    #####:  274:    void newLine(void)
+        -:  275:    {
+    #####:  276:        if (_dotting)
+        -:  277:        {
+    #####:  278:            (*_o) << endl;
+    #####:  279:            _dotting = false;
+        -:  280:        }
+    #####:  281:    }
+        -:  282:
+    #####:  283:    void reportTest(void)
+        -:  284:    {
+    #####:  285:        if (_reported)
+        -:  286:        {
+    #####:  287:            return;
+        -:  288:        }
+    #####:  289:        (*_o) << "In " << tracker().suite().suiteName() << "::" << tracker().test().testName() << ":" << endl;
+    #####:  290:        _reported = true;
+        -:  291:    }
+        -:  292:
+    #####:  293:    void dump(const void *buffer, unsigned size)
+        -:  294:    {
+    #####:  295:        if (!buffer)
+        -:  296:        {
+    #####:  297:            dumpNull();
+        -:  298:        }
+        -:  299:        else
+        -:  300:        {
+    #####:  301:            dumpBuffer(buffer, size);
+        -:  302:        }
+    #####:  303:    }
+        -:  304:
+    #####:  305:    void dumpNull()
+        -:  306:    {
+    #####:  307:        (*_o) << "   (null)" << endl;
+    #####:  308:    }
+        -:  309:
+    #####:  310:    void dumpBuffer(const void *buffer, unsigned size)
+        -:  311:    {
+    #####:  312:        unsigned dumpSize = size;
+    #####:  313:        if (maxDumpSize() && dumpSize > maxDumpSize())
+        -:  314:        {
+    #####:  315:            dumpSize = maxDumpSize();
+        -:  316:        }
+        -:  317:
+    #####:  318:        const unsigned char *p = (const unsigned char *)buffer;
+    #####:  319:        (*_o) << "   { ";
+    #####:  320:        for (unsigned i = 0; i < dumpSize; ++ i)
+        -:  321:        {
+    #####:  322:            (*_o) << byteToHex(*p++) << " ";
+        -:  323:        }
+    #####:  324:        if (dumpSize < size)
+        -:  325:        {
+    #####:  326:            (*_o) << "... ";
+        -:  327:        }
+    #####:  328:        (*_o) << "}" << endl;
+    #####:  329:    }
+        -:  330:
+        1:  331:    static void endl(OutputStream &o)
+        -:  332:    {
+        1:  333:        OutputStream::endl(o);
+        1:  334:    }
+        -:  335:
+        -:  336:    bool _dotting;
+        -:  337:    bool _reported;
+        -:  338:    OutputStream *_o;
+        -:  339:    const char *_preLine;
+        -:  340:    const char *_postLine;
+        -:  341:    const char *_errorString;
+        -:  342:    const char *_warningString;
+        -:  343:};
+        -:  344:}
+        -:  345:
+        -:  346:#endif // __cxxtest__ErrorFormatter_h__
+        -:  347:

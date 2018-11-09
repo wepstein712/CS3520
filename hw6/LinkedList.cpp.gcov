@@ -1,0 +1,226 @@
+        -:    0:Source:cxxtest-4.4/cxxtest/LinkedList.cpp
+        -:    0:Graph:runner.gcno
+        -:    0:Data:runner.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2:-------------------------------------------------------------------------
+        -:    3: CxxTest: A lightweight C++ unit testing library.
+        -:    4: Copyright (c) 2008 Sandia Corporation.
+        -:    5: This software is distributed under the LGPL License v3
+        -:    6: For more information, see the COPYING file in the top CxxTest directory.
+        -:    7: Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+        -:    8: the U.S. Government retains certain rights in this software.
+        -:    9:-------------------------------------------------------------------------
+        -:   10:*/
+        -:   11:
+        -:   12:#ifndef __cxxtest__LinkedList_cpp__
+        -:   13:#define __cxxtest__LinkedList_cpp__
+        -:   14:
+        -:   15:#include <cxxtest/LinkedList.h>
+        -:   16:
+        -:   17:namespace CxxTest
+        -:   18:{
+        -:   19:List GlobalFixture::_list = { 0, 0 };
+        -:   20:List RealSuiteDescription::_suites = { 0, 0 };
+        -:   21:
+    #####:   22:void List::initialize()
+        -:   23:{
+    #####:   24:    _head = _tail = 0;
+    #####:   25:}
+        -:   26:
+       25:   27:Link *List::head()
+        -:   28:{
+       25:   29:    Link *l = _head;
+       50:   30:    while (l && !l->active())
+        -:   31:    {
+    #####:   32:        l = l->next();
+        -:   33:    }
+       25:   34:    return l;
+        -:   35:}
+        -:   36:
+        4:   37:const Link *List::head() const
+        -:   38:{
+        4:   39:    Link *l = _head;
+        8:   40:    while (l && !l->active())
+        -:   41:    {
+    #####:   42:        l = l->next();
+        -:   43:    }
+        4:   44:    return l;
+        -:   45:}
+        -:   46:
+       20:   47:Link *List::tail()
+        -:   48:{
+       20:   49:    Link *l = _tail;
+       40:   50:    while (l && !l->active())
+        -:   51:    {
+    #####:   52:        l = l->prev();
+        -:   53:    }
+       20:   54:    return l;
+        -:   55:}
+        -:   56:
+    #####:   57:const Link *List::tail() const
+        -:   58:{
+    #####:   59:    Link *l = _tail;
+    #####:   60:    while (l && !l->active())
+        -:   61:    {
+    #####:   62:        l = l->prev();
+        -:   63:    }
+    #####:   64:    return l;
+        -:   65:}
+        -:   66:
+    #####:   67:bool List::empty() const
+        -:   68:{
+    #####:   69:    return (_head == 0);
+        -:   70:}
+        -:   71:
+        4:   72:unsigned List::size() const
+        -:   73:{
+        4:   74:    unsigned count = 0;
+       42:   75:    for (const Link *l = head(); l != 0; l = l->next())
+        -:   76:    {
+       38:   77:        ++ count;
+        -:   78:    }
+        4:   79:    return count;
+        -:   80:}
+        -:   81:
+    #####:   82:Link *List::nth(unsigned n)
+        -:   83:{
+    #####:   84:    Link *l = head();
+    #####:   85:    while (n --)
+        -:   86:    {
+    #####:   87:        l = l->next();
+        -:   88:    }
+    #####:   89:    return l;
+        -:   90:}
+        -:   91:
+    #####:   92:void List::activateAll()
+        -:   93:{
+    #####:   94:    for (Link *l = _head; l != 0; l = l->justNext())
+        -:   95:    {
+    #####:   96:        l->setActive(true);
+        -:   97:    }
+    #####:   98:}
+        -:   99:
+    #####:  100:void List::leaveOnly(const Link &link)
+        -:  101:{
+    #####:  102:    for (Link *l = head(); l != 0; l = l->next())
+        -:  103:    {
+    #####:  104:        if (l != &link)
+        -:  105:        {
+    #####:  106:            l->setActive(false);
+        -:  107:        }
+        -:  108:    }
+    #####:  109:}
+        -:  110:
+       25:  111:Link::Link() :
+        -:  112:    _next(0),
+        -:  113:    _prev(0),
+       25:  114:    _active(true)
+        -:  115:{
+       25:  116:}
+        -:  117:
+       25:  118:Link::~Link()
+        -:  119:{
+       25:  120:}
+        -:  121:
+       30:  122:bool Link::active() const
+        -:  123:{
+       30:  124:    return _active;
+        -:  125:}
+        -:  126:
+    #####:  127:void Link::setActive(bool value)
+        -:  128:{
+    #####:  129:    _active = value;
+    #####:  130:}
+        -:  131:
+    #####:  132:Link * Link::justNext()
+        -:  133:{
+    #####:  134:    return _next;
+        -:  135:}
+        -:  136:
+    #####:  137:Link * Link::justPrev()
+        -:  138:{
+    #####:  139:    return _prev;
+        -:  140:}
+        -:  141:
+       21:  142:Link * Link::next()
+        -:  143:{
+       21:  144:    Link *l = _next;
+       42:  145:    while (l && !l->_active)
+        -:  146:    {
+    #####:  147:        l = l->_next;
+        -:  148:    }
+       21:  149:    return l;
+        -:  150:}
+        -:  151:
+    #####:  152:Link * Link::prev()
+        -:  153:{
+    #####:  154:    Link *l = _prev;
+    #####:  155:    while (l && !l->_active)
+        -:  156:    {
+    #####:  157:        l = l->_prev;
+        -:  158:    }
+    #####:  159:    return l;
+        -:  160:}
+        -:  161:
+       42:  162:const Link * Link::next() const
+        -:  163:{
+       42:  164:    Link *l = _next;
+       84:  165:    while (l && !l->_active)
+        -:  166:    {
+    #####:  167:        l = l->_next;
+        -:  168:    }
+       42:  169:    return l;
+        -:  170:}
+        -:  171:
+    #####:  172:const Link * Link::prev() const
+        -:  173:{
+    #####:  174:    Link *l = _prev;
+    #####:  175:    while (l && !l->_active)
+        -:  176:    {
+    #####:  177:        l = l->_prev;
+        -:  178:    }
+    #####:  179:    return l;
+        -:  180:}
+        -:  181:
+       21:  182:void Link::attach(List &l)
+        -:  183:{
+       21:  184:    if (l._tail)
+        -:  185:    {
+       18:  186:        l._tail->_next = this;
+        -:  187:    }
+        -:  188:
+       21:  189:    _prev = l._tail;
+       21:  190:    _next = 0;
+        -:  191:
+       21:  192:    if (l._head == 0)
+        -:  193:    {
+        3:  194:        l._head = this;
+        -:  195:    }
+       21:  196:    l._tail = this;
+       21:  197:}
+        -:  198:
+    #####:  199:void Link::detach(List &l)
+        -:  200:{
+    #####:  201:    if (_prev)
+        -:  202:    {
+    #####:  203:        _prev->_next = _next;
+        -:  204:    }
+        -:  205:    else
+        -:  206:    {
+    #####:  207:        l._head = _next;
+        -:  208:    }
+        -:  209:
+    #####:  210:    if (_next)
+        -:  211:    {
+    #####:  212:        _next->_prev = _prev;
+        -:  213:    }
+        -:  214:    else
+        -:  215:    {
+    #####:  216:        l._tail = _prev;
+        -:  217:    }
+    #####:  218:}
+        -:  219:}
+        -:  220:
+        -:  221:#endif // __cxxtest__LinkedList_cpp__

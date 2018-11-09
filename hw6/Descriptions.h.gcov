@@ -1,0 +1,96 @@
+        -:    0:Source:cxxtest-4.4/cxxtest/Descriptions.h
+        -:    0:Graph:runner.gcno
+        -:    0:Data:runner.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2:-------------------------------------------------------------------------
+        -:    3: CxxTest: A lightweight C++ unit testing library.
+        -:    4: Copyright (c) 2008 Sandia Corporation.
+        -:    5: This software is distributed under the LGPL License v3
+        -:    6: For more information, see the COPYING file in the top CxxTest directory.
+        -:    7: Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+        -:    8: the U.S. Government retains certain rights in this software.
+        -:    9:-------------------------------------------------------------------------
+        -:   10:*/
+        -:   11:
+        -:   12:#ifndef __cxxtest__Descriptions_h__
+        -:   13:#define __cxxtest__Descriptions_h__
+        -:   14:
+        -:   15://
+        -:   16:// TestDescription, SuiteDescription and WorldDescription
+        -:   17:// hold information about tests so they can be run and reported.
+        -:   18://
+        -:   19:
+        -:   20:#include <cxxtest/LinkedList.h>
+        -:   21:
+        -:   22:namespace CxxTest
+        -:   23:{
+        -:   24:class TestSuite;
+        -:   25:
+       20:   26:class TestDescription : public Link
+        -:   27:{
+        -:   28:public:
+        -:   29:    virtual ~TestDescription();
+        -:   30:
+        -:   31:    virtual const char *file() const = 0;
+        -:   32:    virtual int line() const = 0;
+        -:   33:    virtual const char *testName() const = 0;
+        -:   34:    virtual const char *suiteName() const = 0;
+        -:   35:
+        -:   36:    virtual void run() = 0;
+        -:   37:    virtual bool setUp() = 0;
+        -:   38:    virtual bool tearDown() = 0;
+        -:   39:
+        -:   40:    virtual const TestDescription *next() const = 0;
+        -:   41:    virtual TestDescription *next() = 0;
+        -:   42:};
+        -:   43:
+        3:   44:class SuiteDescription : public Link
+        -:   45:{
+        -:   46:public:
+        -:   47:    virtual ~SuiteDescription();
+        -:   48:
+        -:   49:    virtual const char *file() const = 0;
+        -:   50:    virtual int line() const = 0;
+        -:   51:    virtual const char *suiteName() const = 0;
+        -:   52:    virtual TestSuite *suite() const = 0;
+        -:   53:
+        -:   54:    virtual unsigned numTests() const = 0;
+        -:   55:    virtual const TestDescription &testDescription(unsigned /*i*/) const = 0;
+        -:   56:
+        -:   57:    virtual TestDescription *firstTest() = 0;
+        -:   58:    virtual const TestDescription *firstTest() const = 0;
+        -:   59:    virtual SuiteDescription *next() = 0;
+        -:   60:    virtual const SuiteDescription *next() const = 0;
+        -:   61:
+        -:   62:    virtual void activateAllTests() = 0;
+        -:   63:    virtual bool leaveOnly(const char * /*testName*/) = 0;
+        -:   64:
+        -:   65:    virtual bool setUp() = 0;
+        -:   66:    virtual bool tearDown() = 0;
+        -:   67:};
+        -:   68:
+        2:   69:class WorldDescription : public Link
+        -:   70:{
+        -:   71:public:
+        -:   72:    virtual ~WorldDescription();
+        -:   73:
+    #####:   74:    virtual const char *worldName() const { return "cxxtest"; }
+        -:   75:    virtual unsigned numSuites(void) const = 0;
+        -:   76:    virtual unsigned numTotalTests(void) const = 0;
+        -:   77:    virtual const SuiteDescription &suiteDescription(unsigned /*i*/) const = 0;
+        -:   78:
+        -:   79:    enum { MAX_STRLEN_TOTAL_TESTS = 32 };
+        -:   80:    char *strTotalTests(char * /*buffer*/) const;
+        -:   81:
+        -:   82:    virtual SuiteDescription *firstSuite() = 0;
+        -:   83:    virtual const SuiteDescription *firstSuite() const = 0;
+        -:   84:
+        -:   85:    virtual void activateAllTests() = 0;
+        -:   86:    virtual bool leaveOnly(const char * /*suiteName*/, const char * /*testName*/ = 0) = 0;
+        -:   87:};
+        -:   88:}
+        -:   89:
+        -:   90:#endif // __cxxtest__Descriptions_h__
+        -:   91:

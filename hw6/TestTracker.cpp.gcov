@@ -1,0 +1,293 @@
+        -:    0:Source:cxxtest-4.4/cxxtest/TestTracker.cpp
+        -:    0:Graph:runner.gcno
+        -:    0:Data:runner.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:/*
+        -:    2:-------------------------------------------------------------------------
+        -:    3: CxxTest: A lightweight C++ unit testing library.
+        -:    4: Copyright (c) 2008 Sandia Corporation.
+        -:    5: This software is distributed under the LGPL License v3
+        -:    6: For more information, see the COPYING file in the top CxxTest directory.
+        -:    7: Under the terms of Contract DE-AC04-94AL85000 with Sandia Corporation,
+        -:    8: the U.S. Government retains certain rights in this software.
+        -:    9:-------------------------------------------------------------------------
+        -:   10:*/
+        -:   11:
+        -:   12:#ifndef __cxxtest__TestTracker_cpp__
+        -:   13:#define __cxxtest__TestTracker_cpp__
+        -:   14:
+        -:   15:#include <cxxtest/TestTracker.h>
+        -:   16:
+        -:   17:namespace CxxTest
+        -:   18:{
+        -:   19:bool TestTracker::_created = false;
+        -:   20:bool TestTracker::print_tracing = false;
+        -:   21:
+        1:   22:TestTracker::TestTracker()
+        -:   23:{
+        1:   24:    if (!_created)
+        -:   25:    {
+        1:   26:        initialize();
+        1:   27:        setListener(0);
+        1:   28:        _created = true;
+        -:   29:    }
+        1:   30:}
+        -:   31:
+        1:   32:TestTracker::~TestTracker()
+        -:   33:{
+        1:   34:}
+        -:   35:
+       87:   36:TestTracker & TestTracker::tracker()
+        -:   37:{
+       87:   38:    static TestTracker theTracker;
+       87:   39:    return theTracker;
+        -:   40:}
+        -:   41:
+        1:   42:void TestTracker::initialize()
+        -:   43:{
+        1:   44:    _warnings = 0;
+        1:   45:    _skippedTests = 0;
+        1:   46:    _testSkipped = false;
+        1:   47:    _failedTests = 0;
+        1:   48:    _testFailedAsserts = 0;
+        1:   49:    _suiteFailedTests = 0;
+        1:   50:    _failedSuites = 0;
+        1:   51:    _world = 0;
+        1:   52:    _suite = 0;
+        1:   53:    _test = 0;
+        1:   54:}
+        -:   55:
+       44:   56:const TestDescription *TestTracker::fixTest(const TestDescription *d) const
+        -:   57:{
+       44:   58:    return d ? d : &dummyTest();
+        -:   59:}
+        -:   60:
+        6:   61:const SuiteDescription *TestTracker::fixSuite(const SuiteDescription *d) const
+        -:   62:{
+        6:   63:    return d ? d : &dummySuite();
+        -:   64:}
+        -:   65:
+        2:   66:const WorldDescription *TestTracker::fixWorld(const WorldDescription *d) const
+        -:   67:{
+        2:   68:    return d ? d : &dummyWorld();
+        -:   69:}
+        -:   70:
+       25:   71:const TestDescription &TestTracker::dummyTest() const
+        -:   72:{
+       25:   73:    return dummySuite().testDescription(0);
+        -:   74:}
+        -:   75:
+       29:   76:const SuiteDescription &TestTracker::dummySuite() const
+        -:   77:{
+       29:   78:    return dummyWorld().suiteDescription(0);
+        -:   79:}
+        -:   80:
+       30:   81:const WorldDescription &TestTracker::dummyWorld() const
+        -:   82:{
+       30:   83:    return _dummyWorld;
+        -:   84:}
+        -:   85:
+        3:   86:void TestTracker::setListener(TestListener *l)
+        -:   87:{
+        3:   88:    _l = l ? l : &_dummyListener;
+        3:   89:}
+        -:   90:
+        1:   91:void TestTracker::enterWorld(const WorldDescription &wd)
+        -:   92:{
+        1:   93:    setWorld(&wd);
+        1:   94:    _warnings = _skippedTests = _failedTests = _testFailedAsserts = _suiteFailedTests = _failedSuites = 0;
+        1:   95:    _testSkipped = false;
+        1:   96:    _l->enterWorld(wd);
+        1:   97:}
+        -:   98:
+        2:   99:void TestTracker::enterSuite(const SuiteDescription &sd)
+        -:  100:{
+        2:  101:    setSuite(&sd);
+        2:  102:    _testFailedAsserts = _suiteFailedTests = 0;
+        2:  103:    _testSkipped = false;
+        2:  104:    _l->enterSuite(sd);
+        2:  105:}
+        -:  106:
+       19:  107:void TestTracker::enterTest(const TestDescription &td)
+        -:  108:{
+       19:  109:    setTest(&td);
+       19:  110:    _testFailedAsserts = false;
+       19:  111:    _testSkipped = false;
+       19:  112:    _l->enterTest(td);
+       19:  113:}
+        -:  114:
+       19:  115:void TestTracker::leaveTest(const TestDescription &td)
+        -:  116:{
+       19:  117:    _l->leaveTest(td);
+       19:  118:    setTest(0);
+       19:  119:}
+        -:  120:
+        2:  121:void TestTracker::leaveSuite(const SuiteDescription &sd)
+        -:  122:{
+        2:  123:    _l->leaveSuite(sd);
+        2:  124:    setSuite(0);
+        2:  125:}
+        -:  126:
+        1:  127:void TestTracker::leaveWorld(const WorldDescription &wd)
+        -:  128:{
+        1:  129:    _l->leaveWorld(wd);
+        1:  130:    setWorld(0);
+        1:  131:}
+        -:  132:
+    #####:  133:void TestTracker::trace(const char *file, int line, const char *expression)
+        -:  134:{
+    #####:  135:    _l->trace(file, line, expression);
+    #####:  136:}
+        -:  137:
+    #####:  138:void TestTracker::warning(const char *file, int line, const char *expression)
+        -:  139:{
+    #####:  140:    countWarning();
+    #####:  141:    _l->warning(file, line, expression);
+    #####:  142:}
+        -:  143:
+    #####:  144:void TestTracker::skippedTest(const char *file, int line, const char *expression)
+        -:  145:{
+    #####:  146:    countSkipped();
+    #####:  147:    _testSkipped = true;
+    #####:  148:    _l->skippedTest(file, line, expression);
+    #####:  149:}
+        -:  150:
+    #####:  151:void TestTracker::failedTest(const char *file, int line, const char *expression)
+        -:  152:{
+    #####:  153:    countFailure();
+    #####:  154:    _l->failedTest(file, line, expression);
+    #####:  155:}
+        -:  156:
+    #####:  157:void TestTracker::failedAssert(const char *file, int line, const char *expression)
+        -:  158:{
+    #####:  159:    countFailure();
+    #####:  160:    _l->failedAssert(file, line, expression);
+    #####:  161:}
+        -:  162:
+    #####:  163:void TestTracker::failedAssertEquals(const char *file, int line,
+        -:  164:                                     const char *xStr, const char *yStr,
+        -:  165:                                     const char *x, const char *y)
+        -:  166:{
+    #####:  167:    countFailure();
+    #####:  168:    _l->failedAssertEquals(file, line, xStr, yStr, x, y);
+    #####:  169:}
+        -:  170:
+    #####:  171:void TestTracker::failedAssertSameData(const char *file, int line,
+        -:  172:                                       const char *xStr, const char *yStr,
+        -:  173:                                       const char *sizeStr, const void *x,
+        -:  174:                                       const void *y, unsigned size)
+        -:  175:{
+    #####:  176:    countFailure();
+    #####:  177:    _l->failedAssertSameData(file, line, xStr, yStr, sizeStr, x, y, size);
+    #####:  178:}
+        -:  179:
+    #####:  180:void TestTracker::failedAssertDelta(const char *file, int line,
+        -:  181:                                    const char *xStr, const char *yStr, const char *dStr,
+        -:  182:                                    const char *x, const char *y, const char *d)
+        -:  183:{
+    #####:  184:    countFailure();
+    #####:  185:    _l->failedAssertDelta(file, line, xStr, yStr, dStr, x, y, d);
+    #####:  186:}
+        -:  187:
+    #####:  188:void TestTracker::failedAssertDiffers(const char *file, int line,
+        -:  189:                                      const char *xStr, const char *yStr,
+        -:  190:                                      const char *value)
+        -:  191:{
+    #####:  192:    countFailure();
+    #####:  193:    _l->failedAssertDiffers(file, line, xStr, yStr, value);
+    #####:  194:}
+        -:  195:
+    #####:  196:void TestTracker::failedAssertLessThan(const char *file, int line,
+        -:  197:                                       const char *xStr, const char *yStr,
+        -:  198:                                       const char *x, const char *y)
+        -:  199:{
+    #####:  200:    countFailure();
+    #####:  201:    _l->failedAssertLessThan(file, line, xStr, yStr, x, y);
+    #####:  202:}
+        -:  203:
+    #####:  204:void TestTracker::failedAssertLessThanEquals(const char *file, int line,
+        -:  205:        const char *xStr, const char *yStr,
+        -:  206:        const char *x, const char *y)
+        -:  207:{
+    #####:  208:    countFailure();
+    #####:  209:    _l->failedAssertLessThanEquals(file, line, xStr, yStr, x, y);
+    #####:  210:}
+        -:  211:
+    #####:  212:void TestTracker::failedAssertPredicate(const char *file, int line,
+        -:  213:                                        const char *predicate, const char *xStr, const char *x)
+        -:  214:{
+    #####:  215:    countFailure();
+    #####:  216:    _l->failedAssertPredicate(file, line, predicate, xStr, x);
+    #####:  217:}
+        -:  218:
+    #####:  219:void TestTracker::failedAssertRelation(const char *file, int line,
+        -:  220:                                       const char *relation, const char *xStr, const char *yStr,
+        -:  221:                                       const char *x, const char *y)
+        -:  222:{
+    #####:  223:    countFailure();
+    #####:  224:    _l->failedAssertRelation(file, line, relation, xStr, yStr, x, y);
+    #####:  225:}
+        -:  226:
+    #####:  227:void TestTracker::failedAssertThrows(const char *file, int line,
+        -:  228:                                     const char *expression, const char *type,
+        -:  229:                                     bool otherThrown)
+        -:  230:{
+    #####:  231:    countFailure();
+    #####:  232:    _l->failedAssertThrows(file, line, expression, type, otherThrown);
+    #####:  233:}
+        -:  234:
+    #####:  235:void TestTracker::failedAssertThrowsNot(const char *file, int line, const char *expression)
+        -:  236:{
+    #####:  237:    countFailure();
+    #####:  238:    _l->failedAssertThrowsNot(file, line, expression);
+    #####:  239:}
+        -:  240:
+    #####:  241:void TestTracker::failedAssertSameFiles(const char *file, int line, const char *file1, const char* file2, const char* explanation)
+        -:  242:{
+    #####:  243:    countFailure();
+    #####:  244:    _l->failedAssertSameFiles(file, line, file1, file2, explanation);
+    #####:  245:}
+        -:  246:
+        2:  247:void TestTracker::setWorld(const WorldDescription *w)
+        -:  248:{
+        2:  249:    _world = fixWorld(w);
+        2:  250:    setSuite(0);
+        2:  251:}
+        -:  252:
+        6:  253:void TestTracker::setSuite(const SuiteDescription *s)
+        -:  254:{
+        6:  255:    _suite = fixSuite(s);
+        6:  256:    setTest(0);
+        6:  257:}
+        -:  258:
+       44:  259:void TestTracker::setTest(const TestDescription *t)
+        -:  260:{
+       44:  261:    _test = fixTest(t);
+       44:  262:}
+        -:  263:
+    #####:  264:void TestTracker::countWarning()
+        -:  265:{
+    #####:  266:    ++ _warnings;
+    #####:  267:}
+        -:  268:
+    #####:  269:void TestTracker::countSkipped()
+        -:  270:{
+    #####:  271:    ++ _skippedTests;
+    #####:  272:}
+        -:  273:
+    #####:  274:void TestTracker::countFailure()
+        -:  275:{
+    #####:  276:    if (++ _testFailedAsserts == 1)
+        -:  277:    {
+    #####:  278:        ++ _failedTests;
+    #####:  279:        if (++ _suiteFailedTests == 1)
+        -:  280:        {
+    #####:  281:            ++ _failedSuites;
+        -:  282:        }
+        -:  283:    }
+    #####:  284:}
+        -:  285:}
+        -:  286:
+        -:  287:#endif // __cxxtest__TestTracker_cpp__
+        -:  288:
