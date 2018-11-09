@@ -6,10 +6,10 @@ CXXTEST_INCLUDE = $(CXXTEST_HOME)
 all: runner
 
 runner: IntArray.o IntArrayAlgorithms.o IntArray.cxxtest.o IntArrayAlgorithms.cxxtest.o runner.o
-	g++ -std=c++11 $^ -I$(CXXTEST_INCLUDE) -o $@
+	g++ -fprofile-arcs -std=c++11 $^ -I$(CXXTEST_INCLUDE) -o $@
 
 %.o: %.cpp *.hpp
-	g++ -c  -std=c++11 $< -I$(CXXTEST_INCLUDE) -o $@
+	g++  -fprofile-arcs -ftest-coverage -c -std=c++11 $< -I$(CXXTEST_INCLUDE) -o $@
 
 %.cxxtest.cpp: %.cxxtest.hpp
 	$(CXXTEST_GEN) --part --error-printer $< -o $@

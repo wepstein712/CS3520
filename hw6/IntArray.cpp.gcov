@@ -1,0 +1,114 @@
+        -:    0:Source:IntArray.cpp
+        -:    0:Graph:IntArray.gcno
+        -:    0:Data:IntArray.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include "IntArray.hpp"
+        -:    2:#include <cstring>
+        -:    3:#include <stdexcept>
+        -:    4:#include <utility>
+        -:    5:
+        2:    6:IntArray::IntArray():
+        2:    7:  IntArray(0)
+        -:    8:{
+        2:    9:}
+        -:   10:
+       24:   11:IntArray::IntArray(size_t sz):
+       24:   12:  m_arr(new int[sz]),
+       24:   13:  m_sz(sz)
+        -:   14:{
+       24:   15:  memset(m_arr, 0, sizeof(int) * m_sz);
+       24:   16:}
+        -:   17:
+       77:   18:IntArray::IntArray(const std::initializer_list<int> & lst):
+       77:   19:  m_arr(new int[lst.size()]),
+       77:   20:  m_sz(lst.size())
+        -:   21:{
+       77:   22:  size_t ii = 0;
+      442:   23:  for (int elem: lst) {
+      365:   24:    m_arr[ii] = elem;
+      365:   25:    ++ ii;
+        -:   26:  }
+       77:   27:}
+        -:   28:
+       19:   29:IntArray::IntArray(const IntArray & o):
+       19:   30:  m_arr(new int[o.m_sz]),
+       19:   31:  m_sz(o.m_sz)
+        -:   32:{
+       19:   33:  memcpy(m_arr, o.m_arr, sizeof(int) * m_sz);
+       19:   34:}
+        -:   35:
+    #####:   36:IntArray::IntArray(IntArray && o):
+        -:   37:  m_arr(o.m_arr),
+    #####:   38:  m_sz(o.m_sz)
+        -:   39:{
+    #####:   40:  o.m_arr = nullptr;
+    #####:   41:  o.m_sz = 0;
+    #####:   42:}
+        -:   43:
+       36:   44:IntArray::~IntArray() {
+       36:   45:  delete [] m_arr;
+       36:   46:}
+        -:   47:
+        6:   48:const int *IntArray::ptr() const {
+        6:   49:  return m_arr;
+        -:   50:}
+        -:   51:
+       17:   52:size_t IntArray::size() const {
+       17:   53:  return m_sz;
+        -:   54:}
+        -:   55:
+        6:   56:IntArray & IntArray::operator=(const IntArray & o) {
+        6:   57:  if (this != &o) {
+        6:   58:    if (m_sz != o.m_sz) {
+        4:   59:      delete [] m_arr;
+        4:   60:      m_arr = new int[o.m_sz];
+        4:   61:      m_sz = o.m_sz;
+        -:   62:    }
+        6:   63:    memcpy(m_arr, o.m_arr, sizeof(int) * m_sz);
+        -:   64:  }
+        6:   65:  return *this;
+        -:   66:}
+        -:   67:
+        3:   68:IntArray & IntArray::operator=(IntArray && o) {
+        3:   69:  if (this != &o) {
+        3:   70:    delete [] m_arr;
+        3:   71:    m_arr = o.m_arr;
+        3:   72:    m_sz = o.m_sz;
+        3:   73:    o.m_arr = nullptr;
+        3:   74:    o.m_sz = 0;
+        -:   75:  }
+        3:   76:  return *this;
+        -:   77:}
+        -:   78:
+       16:   79:int & IntArray::operator[](size_t ind) {
+       16:   80:  if (ind >= m_sz) {
+        1:   81:    throw std::out_of_range("out of range");
+        -:   82:  }
+       15:   83:  return m_arr[ind];
+        -:   84:}
+        -:   85:
+       16:   86:const int & IntArray::operator[](size_t ind) const {
+       16:   87:  if (ind >= m_sz) {
+        1:   88:    throw std::out_of_range("out of range");
+        -:   89:  }
+       15:   90:  return m_arr[ind];
+        -:   91:}
+        -:   92:
+        8:   93:bool operator==(const IntArray & lhs, const IntArray & rhs) {
+        8:   94:  if (lhs.m_sz != rhs.m_sz) {
+        2:   95:    return false;
+        -:   96:  }
+        -:   97:
+       12:   98:  for (size_t ii = 0; ii < lhs.m_sz; ++ ii) {
+        7:   99:    if (lhs.m_arr[ii] != rhs.m_arr[ii]) {
+        1:  100:      return false;
+        -:  101:    }
+        -:  102:  }
+        -:  103:
+        5:  104:  return true;
+        -:  105:}
+        -:  106:
+        1:  107:bool operator!=(const IntArray & lhs, const IntArray & rhs) {
+        1:  108:  return !(lhs == rhs);
+        -:  109:}

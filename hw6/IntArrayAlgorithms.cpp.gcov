@@ -1,0 +1,55 @@
+        -:    0:Source:IntArrayAlgorithms.cpp
+        -:    0:Graph:IntArrayAlgorithms.gcno
+        -:    0:Data:IntArrayAlgorithms.gcda
+        -:    0:Runs:1
+        -:    0:Programs:1
+        -:    1:#include "IntArrayAlgorithms.hpp"
+        -:    2:#include "IntArray.hpp"
+        -:    3:
+        2:    4:void IntArrayAlgorithms::swap(IntArray & lhs, IntArray & rhs) {
+        2:    5:  IntArray* temp = new IntArray(lhs.size());
+        2:    6:  *temp = lhs;
+        2:    7:  lhs = rhs;
+        2:    8:  rhs = *temp;
+        2:    9:  delete temp;
+        2:   10:}
+        -:   11:
+        2:   12:bool IntArrayAlgorithms::contains(const IntArray & arr, int val) {
+        2:   13:  size_t s = arr.size();
+        7:   14:  for (size_t i = 0 ; i < s; i++) {
+        6:   15:    if (val == arr[i]) { return true; }
+        -:   16:  }
+        1:   17:  return false;
+        -:   18:}
+        -:   19:
+        1:   20:void IntArrayAlgorithms::sort(IntArray & arr) {
+        1:   21:  int s = arr.size();
+        3:   22:  for (int i = 0; i < s - 1; i++) {
+        5:   23:   for (int j = 0; j < s-i-1; j++) {
+        3:   24:     if (arr[j] > arr[j+1]) {
+        2:   25:      int temp = arr[j];
+        2:   26:      arr[j] = arr[j+1];
+        2:   27:      arr[j+1] = temp;
+        -:   28:     }
+        -:   29:   }
+        -:   30:  }
+        1:   31:}
+        -:   32:
+        2:   33:int IntArrayAlgorithms::sum(const IntArray & arr) {
+        2:   34:  int sum = 0; 
+        2:   35:  size_t s = arr.size();
+        7:   36:  for (size_t i = 0; i < s; i++) {
+        5:   37:    sum+= arr[i];
+        -:   38:  }
+        2:   39:  return sum;
+        -:   40:}
+        -:   41:
+        2:   42:int IntArrayAlgorithms::product(const IntArray & arr) {
+        2:   43:  int pro = 1;
+        2:   44:  size_t s = arr.size();
+        5:   45:  for (size_t i = 0; i < s; i++) {
+        3:   46:    pro*= arr[i];
+        -:   47:  }
+        2:   48:  return pro;
+        -:   49:
+        -:   50:}

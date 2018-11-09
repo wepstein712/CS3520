@@ -97,7 +97,10 @@ public:
      size_t sz = 3;
     TS_ASSERT_EQUALS((*b)[sz], 9);
     sz = 100;
-    TS_ASSERT_THROWS((*b)[sz], std::out_of_range);
+    TS_ASSERT_THROWS((*b)[sz],std::out_of_range);
+    const IntArray* delta = new IntArray{1, 2};
+    TS_ASSERT_EQUALS((*delta)[0], 1);
+    TS_ASSERT_THROWS((*delta)[5], std::out_of_range);
   }
 
 
