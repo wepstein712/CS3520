@@ -1,0 +1,4 @@
+strncat this fits.
+printall
+strncat  this makes the string too long.
+printall

@@ -1,0 +1,2 @@
+strncpy abcd
+strstr bc

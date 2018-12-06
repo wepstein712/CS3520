@@ -1,0 +1,8 @@
+strncpy abc,123
+printall
+strtok-str ,
+printall
+strtok-null ,
+printall
+strtok-null ,
+printall

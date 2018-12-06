@@ -1,0 +1,2 @@
+strncpy abc123
+strcspn 123
